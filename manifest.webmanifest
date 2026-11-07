@@ -1,0 +1,15 @@
+{
+ "id": "./",
+ "name": "妖怪ゲッサー",
+ "short_name": "妖怪ゲッサー",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#2e8de6",
+ "theme_color": "#1f6fc4",
+ "lang": "ja",
+ "icons": [
+  {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+  {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"}
+ ]
+}

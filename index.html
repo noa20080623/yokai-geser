@@ -244,11 +244,45 @@ body{padding-block:8px 20px}
 .sug li[aria-selected="true"],.sug li:hover{color:var(--navy)}
 .gbtn,.gbtn.purple,.gbtn.blue,.gbtn.yellow,.card-name,.card.win .card-name,.tile .lab,.tile .val,.tile.near .val,.mode,.mode b,.bk-head h2,.ribbon h1,.ribbon p{text-shadow:-1.5px -1.5px 0 #fff,1.5px -1.5px 0 #fff,-1.5px 1.5px 0 #fff,1.5px 1.5px 0 #fff,0 -2px 0 #fff,0 2px 0 #fff,-2px 0 0 #fff,2px 0 0 #fff}
 .card-name,.card.win .card-name{-webkit-text-stroke:0}
+/* ===== オンライン対戦 ===== */
+.gbtn.online{grid-column:1/-1;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:10px;padding:14px 8px;font-size:18px;background:linear-gradient(180deg,#ffb3c8,#ff6f96 55%,#d9416c);color:#fff;text-shadow:0 2px 0 var(--navy)}
+.gbtn.online b{font-size:26px;line-height:1;color:var(--yellow);-webkit-text-stroke:5px var(--navy);paint-order:stroke fill;text-shadow:none}
+.ol-box{display:flex;flex-direction:column;gap:12px}
+.ol-box h3{margin:0;font-size:16px;font-weight:900;color:var(--navy)}
+.ol-card{background:#fff;border:3px solid var(--navy);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.ol-input{font:inherit;font-weight:900;font-size:17px;border:3px solid var(--navy);border-radius:12px;padding:9px 12px;width:100%;box-sizing:border-box;color:var(--navy);background:#fff}
+.ol-input.code{letter-spacing:.3em;text-align:center;font-size:22px}
+.ol-row{display:flex;gap:8px;align-items:stretch}
+.ol-row .ol-input{flex:1;min-width:0}
+.ol-btn{font-size:16px;padding:9px 16px;white-space:nowrap}
+.ol-ranges{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.ol-ranges button{font:inherit;font-weight:900;font-size:13px;border:2.5px solid var(--navy);border-radius:10px;background:#fff;color:var(--navy);padding:7px 2px;cursor:pointer}
+.ol-ranges button[aria-pressed=true]{background:var(--yellow);box-shadow:inset 0 -3px 0 var(--yellow-dk)}
+.ol-err{min-height:1.3em;font-weight:900;color:#d0304a;text-align:center;white-space:pre-line}
+.ol-code{font-size:34px;font-weight:900;letter-spacing:.25em;text-align:center;color:var(--navy);margin:0}
+.ol-sub{text-align:center;font-weight:800;font-size:13px;color:var(--navy);margin:0}
+.ol-players{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ol-players li{display:flex;align-items:center;gap:8px;border:2.5px solid var(--navy);border-radius:12px;padding:7px 10px;font-weight:900;background:#f4f8ff;color:var(--navy)}
+.ol-players li small{margin-left:auto;font-size:11px;font-weight:900;background:var(--navy);color:#fff;border-radius:999px;padding:2px 8px}
+.ol-players li.me{background:#fff7c2}
+.ol-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.ol-help{font-size:12px;line-height:1.7;color:var(--navy);margin:0}
+.plbar{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 10px}
+.plbar span{display:inline-flex;align-items:center;gap:4px;border:2.5px solid var(--navy);border-radius:999px;padding:4px 10px;font-weight:900;font-size:13px;background:#fff;color:var(--navy)}
+.plbar span.turn{background:var(--yellow);box-shadow:0 0 0 3px #fff,0 0 0 5px var(--yellow-dk);animation:olpulse 1.2s ease-in-out infinite}
+.plbar span.me::after{content:"(じぶん)";font-size:10px}
+.plbar span.win{background:var(--hit);color:#fff}
+.plbar span.gone{opacity:.4;text-decoration:line-through}
+@keyframes olpulse{50%{transform:scale(1.06)}}
+.turnmsg{text-align:center;font-weight:900;font-size:16px;color:var(--navy);margin:0 0 8px}
+.turnmsg.mine{color:#d0304a}
+.card .tag.by{background:#ff6f96;color:#fff}
+@media (prefers-reduced-motion:reduce){.plbar span.turn{animation:none}}
 </style>
 
 <div class="wrap">
   <div class="status">
-    <div class="pillstat"><span class="badge" aria-hidden="true">回</span><span>のこり</span><span class="num" id="left">10</span></div>
+    <div class="pillstat"><span class="badge" aria-hidden="true">回</span><span id="leftLab">のこり</span><span class="num" id="left">10</span></div>
     <div class="pillstat"><span class="badge" aria-hidden="true">探</span><span id="modeName">モード</span><span class="num"></span></div>
     <button class="menubtn" id="menuBtn" type="button" aria-label="モードをえらぶ"><i></i><i></i><i></i></button>
   </div>
@@ -263,10 +297,61 @@ body{padding-block:8px 20px}
         <button class="gbtn blue mode" type="button" data-g="2"><b>2</b><span>2作目のみ</span><small id="c2"></small></button>
         <button class="gbtn blue mode" type="button" data-g="3"><b>3</b><span>3作目のみ</span><small id="c3"></small></button>
         <button class="gbtn purple mode" type="button" data-g="0"><b>全</b><span>ぜんぶ</span><small id="c0"></small></button>
+        <button class="gbtn online" type="button" id="onlineBtn"><b>対</b><span>オンライン対戦(2〜5人)</span></button>
+      </div>
+    </section>
+
+    <section id="onlineScreen" hidden>
+      <div class="ol-box" id="olEntry">
+        <p class="ask">オンライン対戦</p>
+        <div class="ol-card">
+          <h3>あなたの名前</h3>
+          <input class="ol-input" id="olName" maxlength="10" placeholder="なまえ(10文字まで)" autocomplete="nickname">
+        </div>
+        <div class="ol-card">
+          <h3>部屋をつくる</h3>
+          <div class="ol-ranges" id="olRanges" role="group" aria-label="出てくる妖怪のはんい">
+            <button type="button" data-g="1" aria-pressed="false">1作目</button>
+            <button type="button" data-g="2" aria-pressed="false">2作目</button>
+            <button type="button" data-g="3" aria-pressed="false">3作目</button>
+            <button type="button" data-g="0" aria-pressed="true">ぜんぶ</button>
+          </div>
+          <button class="gbtn yellow ol-btn" id="olCreate" type="button"><span>部屋をつくる</span></button>
+        </div>
+        <div class="ol-card">
+          <h3>部屋に入る</h3>
+          <div class="ol-row">
+            <input class="ol-input code" id="olCode" inputmode="numeric" maxlength="4" placeholder="0000" aria-label="部屋番号(4けた)">
+            <button class="gbtn blue ol-btn" id="olJoin" type="button"><span>入る</span></button>
+          </div>
+        </div>
+        <div class="ol-err" id="olErr" aria-live="polite"></div>
+        <p class="ol-help">2〜5人で順番に1回ずつ答えて、先に正解した人の勝ち!みんなの答えの結果(一致・おしい)は全員に見えるよ。持ち時間は1人60秒。ヒントボタンは対戦中は使えません。</p>
+        <div class="ol-actions"><button class="gbtn purple ol-btn" id="olBack" type="button"><span>もどる</span></button></div>
+      </div>
+
+      <div class="ol-box" id="olLobby" hidden>
+        <p class="ask">部屋番号</p>
+        <p class="ol-code" id="olLobbyCode">----</p>
+        <p class="ol-sub" id="olLobbyRange"></p>
+        <div class="ol-actions">
+          <button class="gbtn blue ol-btn" id="olShare" type="button"><span>招待リンクを送る</span></button>
+        </div>
+        <div class="ol-card">
+          <h3 id="olCount">参加者</h3>
+          <ul class="ol-players" id="olPlayers"></ul>
+        </div>
+        <div class="ol-err" id="olLobbyMsg" aria-live="polite"></div>
+        <div class="ol-actions">
+          <button class="gbtn yellow ol-btn" id="olStart" type="button"><span>スタート!</span></button>
+          <button class="gbtn purple ol-btn" id="olLeave" type="button"><span>部屋を出る</span></button>
+        </div>
       </div>
     </section>
 
     <section id="gameScreen" hidden>
+      <div class="plbar" id="plBar" hidden></div>
+      <p class="turnmsg" id="turnMsg" hidden></p>
       <div class="tribebar" id="tribeBar" aria-label="種族の早見表(×はちがう種族、緑の丸は正解の種族)"></div>
       <div class="row-top">
         <button class="gbtn purple" id="giveup" type="button"><span>降参</span></button>
@@ -382,6 +467,7 @@ function start(){
   addCard(card(h,"hint"));renderTribes();
 }
 function submit(name){
+  if(online){olSubmit(name);return}
   if(over)return;
   const q=name.trim();if(!q)return;
   const y=pool.find(x=>x.n===q)||pool.find(x=>x.k===kana(q));
@@ -471,7 +557,7 @@ $("bookBtn").onclick=()=>{if(over)return;if(bkTribe&&!pool.some(y=>y.t===bkTribe
 $("bkClose").onclick=()=>$("book").close();
 $("book").addEventListener("click",e=>{if(e.target===$("book"))$("book").close()});
 
-$("next").onclick=()=>{start();$("guess").focus()};
+$("next").onclick=()=>{if(online){if(isHost)olHostStart();return}start();$("guess").focus()};
 [0,1,2,3].forEach(g=>{$("c"+g).textContent=(g?Y.filter(y=>y.g===g).length:Y.length)+"体"});
 document.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{
   mode=+b.dataset.g;pool=mode?Y.filter(y=>y.g===mode):Y;
@@ -479,7 +565,309 @@ document.querySelectorAll(".mode").forEach(b=>b.addEventListener("click",()=>{
   $("modeScreen").hidden=true;$("gameScreen").hidden=false;
   start();$("guess").focus();
 }));
-$("menuBtn").onclick=()=>{hideSug();$("gameScreen").hidden=true;$("modeScreen").hidden=false};
+$("menuBtn").onclick=()=>{hideSug();if(online){if(!confirm("対戦の部屋を出ますか?"))return;olCleanup()}$("onlineScreen").hidden=true;$("gameScreen").hidden=true;$("modeScreen").hidden=false};
+
+// ===== オンライン対戦(PeerJS / WebRTC。サーバー・ログイン不要) =====
+const OL_PREFIX="yokai-geser-room-", OL_MAX=5, OL_LIM=60, OL_PEERJS="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js";
+let online=false,isHost=false,peer=null,hostConn=null,myId="",roomCode="",olMode=0;
+let olPlayers=[],olOrder=[],olTurn=0,olPending=false,olWinner="",olGone=new Set();
+const olConns=new Map(), olSeen=new Map(), olNames={};
+let olTurnTimer=null,olCountTimer=null,olPingTimer=null,olLastMsg=0,olDeadline=0;
+
+function olLoad(){
+  if(window.Peer)return Promise.resolve();
+  return new Promise((res,rej)=>{const s=document.createElement("script");s.src=OL_PEERJS;s.onload=()=>res();s.onerror=()=>rej(new Error("load"));document.head.appendChild(s)});
+}
+function olName(){return ($("olName").value.trim()||"ななし").slice(0,10)}
+function olErr(t){$("olErr").textContent=t||""}
+function olNameOf(id){const p=olPlayers.find(p=>p.id===id);return p?p.name:(olNames[id]||"?")}
+function olShow(which){
+  $("modeScreen").hidden=true;$("gameScreen").hidden=which!=="game";$("onlineScreen").hidden=which==="game";
+  $("olEntry").hidden=which!=="entry";$("olLobby").hidden=which!=="lobby";
+}
+function olBusy(b){["olCreate","olJoin"].forEach(id=>$(id).disabled=b)}
+
+// ---- 画面:入口 ----
+let olPickMode=0;
+document.querySelectorAll("#olRanges button").forEach(b=>b.onclick=()=>{olPickMode=+b.dataset.g;document.querySelectorAll("#olRanges button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
+try{$("olName").value=localStorage.getItem("yg-name")||""}catch(e){}
+$("olName").addEventListener("change",()=>{try{localStorage.setItem("yg-name",$("olName").value.trim())}catch(e){}});
+$("onlineBtn").onclick=()=>{olErr("");olShow("entry")};
+$("olBack").onclick=()=>{$("onlineScreen").hidden=true;$("modeScreen").hidden=false};
+$("olCode").addEventListener("input",()=>{$("olCode").value=$("olCode").value.replace(/[^0-9０-９]/g,"").replace(/[０-９]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).slice(0,4)});
+$("olCode").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.isComposing)$("olJoin").click()});
+
+$("olCreate").onclick=async()=>{
+  if(!$("olName").value.trim()){olErr("名前を入れてね");$("olName").focus();return}
+  olErr("部屋をつくっています…");olBusy(true);
+  try{await olLoad()}catch(e){olErr("通信の準備に失敗しました。ネットにつながっているか確認してね");olBusy(false);return}
+  olMode=olPickMode;olHostOpen(0);
+};
+$("olJoin").onclick=async()=>{
+  const code=$("olCode").value;
+  if(!$("olName").value.trim()){olErr("名前を入れてね");$("olName").focus();return}
+  if(!/^\d{4}$/.test(code)){olErr("部屋番号は4けたの数字だよ");return}
+  olErr("部屋をさがしています…");olBusy(true);
+  try{await olLoad()}catch(e){olErr("通信の準備に失敗しました。ネットにつながっているか確認してね");olBusy(false);return}
+  olClientJoin(code);
+};
+
+// ---- ホスト ----
+function olHostOpen(tries){
+  roomCode=String(Math.floor(1000+Math.random()*9000));
+  const p=new Peer(OL_PREFIX+roomCode);peer=p;
+  p.on("open",id=>{
+    if(peer!==p)return;
+    online=true;isHost=true;myId=id;olPlayers=[{id,name:olName()}];olBusy(false);
+    olPing();olLobby();
+  });
+  p.on("connection",c=>olHostConn(c));
+  p.on("disconnected",()=>{if(peer===p&&online)try{p.reconnect()}catch(e){}});
+  p.on("error",e=>{
+    if(peer!==p)return;
+    if(e.type==="unavailable-id"&&tries<5){p.destroy();olHostOpen(tries+1);return}
+    if(!online){olErr("部屋をつくれませんでした("+e.type+")。少ししてからもう一度ためしてね");olBusy(false);p.destroy();peer=null}
+  });
+}
+function olHostConn(c){
+  c.on("data",d=>olHostRecv(c,d));
+  c.on("close",()=>olDrop(c.peer));
+  c.on("error",()=>olDrop(c.peer));
+}
+function olHostRecv(c,d){
+  if(!d||typeof d!=="object")return;
+  olSeen.set(c.peer,Date.now());
+  if(d.t==="join"){
+    if(olGameOn()){c.send({t:"reject",why:"いまゲーム中です。終わってから入ってね"});setTimeout(()=>c.close(),500);return}
+    if(olPlayers.length>=OL_MAX&&!olPlayers.some(p=>p.id===c.peer)){c.send({t:"reject",why:"満員です(最大5人)"});setTimeout(()=>c.close(),500);return}
+    olConns.set(c.peer,c);
+    if(!olPlayers.some(p=>p.id===c.peer))olPlayers.push({id:c.peer,name:String(d.name||"ななし").slice(0,10)});
+    olHostLobby();
+  }else if(d.t==="guess"){olHostGuess(c.peer,String(d.name||""))}
+}
+function olGameOn(){return !$("gameScreen").hidden&&!over}
+function olSend(m){olConns.forEach(c=>{try{if(c.open)c.send(m)}catch(e){}})}
+function olAll(m){olSend(m);olRecv(m)}
+function olHostLobby(){olAll({t:"lobby",code:roomCode,mode:olMode,players:olPlayers,host:myId})}
+function olDrop(id){
+  if(!olConns.has(id))return;
+  olConns.delete(id);olSeen.delete(id);
+  const name=olNameOf(id);
+  olPlayers=olPlayers.filter(p=>p.id!==id);
+  if($("gameScreen").hidden){olHostLobby();return}
+  if(over){olOrder=olOrder.filter(x=>x!==id);olAll({t:"players",players:olPlayers,order:olOrder,gone:id});return}
+  const i=olOrder.indexOf(id);
+  if(i<0)return;
+  const wasTurn=i===olTurn;
+  olOrder.splice(i,1);
+  if(i<olTurn)olTurn--;
+  if(olTurn>=olOrder.length)olTurn=0;
+  if(olOrder.length<2){clearTimeout(olTurnTimer);olAll({t:"end",text:`${name}さんが抜けたので、この勝負はおしまい`,players:olPlayers,order:olOrder,gone:id});return}
+  olAll({t:"turn",turn:olTurn,order:olOrder,players:olPlayers,gone:id,note:`${name}さんが抜けました`});
+  if(wasTurn)olHostTimer();
+}
+function olHostTimer(){
+  clearTimeout(olTurnTimer);
+  olTurnTimer=setTimeout(()=>{
+    if(!olGameOn())return;
+    const who=olNameOf(olOrder[olTurn]);
+    olTurn=(olTurn+1)%olOrder.length;
+    olAll({t:"turn",turn:olTurn,order:olOrder,players:olPlayers,note:`${who}さんは時間切れ!`});
+    olHostTimer();
+  },OL_LIM*1000+1500);
+}
+function olHostStart(){
+  if(!isHost)return;
+  if(olPlayers.length<2){$("olLobbyMsg").textContent="2人以上そろったらスタートできるよ";return}
+  const pl=olMode?Y.filter(y=>y.g===olMode):Y;
+  const t=rand(pl);let h;do{h=rand(pl)}while(h.n===t.n);
+  const order=olPlayers.map(p=>p.id);
+  for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+  olOrder=order;olTurn=0;
+  olAll({t:"start",mode:olMode,target:t.n,hint:h.n,order,players:olPlayers});
+  olHostTimer();
+}
+function olHostGuess(from,name){
+  if(!olGameOn()||olOrder[olTurn]!==from)return;
+  const y=pool.find(x=>x.n===name);
+  if(!y||guesses.includes(y.n))return;
+  const win=y.n===target.n;
+  if(!win)olTurn=(olTurn+1)%olOrder.length;
+  olAll({t:"guess",by:from,name:y.n,turn:olTurn,win});
+  if(win)clearTimeout(olTurnTimer);else olHostTimer();
+}
+function olPing(){
+  clearInterval(olPingTimer);
+  olPingTimer=setInterval(()=>{
+    if(!online)return;
+    if(isHost){
+      olSend({t:"ping"});
+      const now=Date.now();
+      [...olConns.keys()].forEach(id=>{if(now-(olSeen.get(id)||now)>20000){try{olConns.get(id).close()}catch(e){}olDrop(id)}});
+    }else{
+      try{hostConn&&hostConn.open&&hostConn.send({t:"pong"})}catch(e){}
+      if(olLastMsg&&Date.now()-olLastMsg>20000)olLost("ホストとの通信が切れました");
+    }
+  },4000);
+}
+
+// ---- 参加する人 ----
+function olClientJoin(code){
+  const p=new Peer();peer=p;let joined=false;
+  p.on("open",id=>{
+    if(peer!==p)return;
+    myId=id;roomCode=code;
+    const c=p.connect(OL_PREFIX+code,{reliable:true});hostConn=c;
+    const to=setTimeout(()=>{if(!joined){olErr("部屋が見つかりませんでした。番号を確認してね");olCleanup()}},12000);
+    c.on("open",()=>{joined=true;clearTimeout(to);online=true;isHost=false;olLastMsg=Date.now();c.send({t:"join",name:olName()});olBusy(false);olPing()});
+    c.on("data",d=>{olLastMsg=Date.now();olRecv(d)});
+    c.on("close",()=>{if(online)olLost("ホストが部屋を閉じました")});
+    c.on("error",()=>{if(online)olLost("通信が切れました")});
+  });
+  p.on("disconnected",()=>{if(peer===p&&online)try{p.reconnect()}catch(e){}});
+  p.on("error",e=>{
+    if(peer!==p)return;
+    if(e.type==="peer-unavailable"){olErr("部屋が見つかりませんでした。番号を確認してね");olCleanup();return}
+    if(!online){olErr("つながりませんでした("+e.type+")。少ししてからもう一度ためしてね");olCleanup()}
+  });
+}
+function olLost(t){olCleanup();olShow("entry");olErr(t)}
+function olClientGuess(name){try{hostConn.send({t:"guess",name})}catch(e){olLost("通信が切れました")}}
+
+// ---- みんな共通:受信 ----
+function olRecv(m){
+  if(!m||typeof m!=="object")return;
+  if(m.t==="ping"||m.t==="pong")return;
+  if(m.t==="reject"){olCleanup();olShow("entry");olErr(m.why);return}
+  if(m.t==="lobby"){olMode=m.mode;roomCode=m.code;olPlayers=m.players;olPlayers.forEach(p=>olNames[p.id]=p.name);olLobby();return}
+  if(m.players)olPlayers=m.players;
+  olPlayers.forEach(p=>olNames[p.id]=p.name);
+  if(m.order)olOrder=m.order;
+  if(m.gone)olGone.add(m.gone);
+  if(m.t==="start"){olBegin(m);return}
+  if(m.t==="guess"){
+    olPending=false;olTurn=m.turn;
+    const y=pool.find(x=>x.n===m.name);if(!y)return;
+    guesses.push(y.n);
+    const c=card(y,"guess");const tg=c.querySelector(".tag");tg.textContent=olNameOf(m.by);tg.classList.add("by");
+    addCard(c);renderTribes();
+    if(m.by===myId){$("guess").value="";hideSug()}
+    if(m.win){
+      olWinner=m.by;
+      end(m.by===myId?`やった!「${y.n}」を当てて勝ち!`:`${olNameOf(m.by)}さんが「${y.n}」を当てて勝ち!`);
+      $("msg").className="msg win";olAfterEnd();
+    }else{$("msg").textContent="";olTurnStart()}
+    olBar();return;
+  }
+  if(m.t==="turn"){olPending=false;olTurn=m.turn;$("msg").textContent=m.note||"";olTurnStart();olBar();return}
+  if(m.t==="players"){olBar();if(over)olAfterEnd();return}
+  if(m.t==="end"){olPending=false;reveal(m.text);olAfterEnd();olBar();return}
+}
+
+// ---- ロビー表示 ----
+function olLobby(){
+  online=true;olShow("lobby");
+  $("modeName").textContent="対戦・"+MODE_NAME[olMode];
+  $("olLobbyCode").textContent=roomCode;
+  $("olLobbyRange").textContent="はんい:"+MODE_NAME[olMode];
+  $("olCount").textContent=`参加者 ${olPlayers.length}/${OL_MAX}人`;
+  const ul=$("olPlayers");ul.innerHTML="";
+  olPlayers.forEach((p,i)=>{const li=document.createElement("li");if(p.id===myId)li.className="me";
+    const s=document.createElement("span");s.textContent=p.name+(p.id===myId?"(じぶん)":"");li.appendChild(s);
+    if(i===0){const sm=document.createElement("small");sm.textContent="ホスト";li.appendChild(sm)}
+    ul.appendChild(li)});
+  $("olStart").hidden=!isHost;$("olStart").disabled=olPlayers.length<2;
+  $("olLobbyMsg").textContent=isHost?(olPlayers.length<2?"友だちに部屋番号か招待リンクを送ってね":"みんなそろったらスタート!"):"ホストがスタートするのを待ってね";
+}
+$("olStart").onclick=olHostStart;
+$("olLeave").onclick=()=>{olCleanup();olShow("entry");olErr("")};
+$("olShare").onclick=async()=>{
+  const url=location.origin+location.pathname+"?room="+roomCode;
+  const text=`妖怪ゲッサーで対戦しよう!部屋番号 ${roomCode}`;
+  try{if(navigator.share){await navigator.share({title:"妖怪ゲッサー",text,url});return}}catch(e){if(e&&e.name==="AbortError")return}
+  try{await navigator.clipboard.writeText(text+"\n"+url);$("olLobbyMsg").textContent="招待リンクをコピーしたよ"}
+  catch(e){$("olLobbyMsg").textContent=url}
+};
+
+// ---- ゲーム ----
+function olBegin(m){
+  olMode=m.mode;mode=m.mode;pool=olMode?Y.filter(y=>y.g===olMode):Y;
+  target=Y.find(y=>y.n===m.target);hintY=Y.find(y=>y.n===m.hint);
+  olTurn=0;olWinner="";olGone=new Set();olPending=false;
+  guesses=[];over=false;hints=0;
+  olShow("game");
+  $("modeName").textContent="対戦・"+MODE_NAME[olMode];
+  $("leftLab").textContent="のこり秒";
+  $("board").innerHTML="";$("msg").textContent="";$("msg").className="msg";$("guess").value="";
+  $("hintLine").hidden=true;
+  $("hintBtn").style.visibility="hidden";$("giveup").style.visibility="hidden";
+  $("plBar").hidden=false;$("turnMsg").hidden=false;
+  $("next").hidden=true;$("next").querySelector("span").textContent="もう一回!";
+  addCard(card(hintY,"hint"));renderTribes();olBar();olTurnStart();
+}
+function olMyTurn(){return online&&!over&&olOrder[olTurn]===myId}
+function olTurnStart(){
+  olDeadline=Date.now()+OL_LIM*1000;
+  clearInterval(olCountTimer);olCountTimer=setInterval(olTick,250);olTick();
+  const mine=olMyTurn();
+  $("guess").disabled=!mine;$("aBtn").disabled=!mine;$("bookBtn").disabled=!mine;
+  $("turnMsg").className="turnmsg"+(mine?" mine":"");
+  $("turnMsg").textContent=mine?"あなたの番!妖怪の名前を答えてね":`${olNameOf(olOrder[olTurn])}さんの番…`;
+  if(mine){try{$("guess").focus({preventScroll:true})}catch(e){}}
+  else{hideSug();if($("book").open)$("book").close()}
+}
+function olTick(){
+  if(over){clearInterval(olCountTimer);return}
+  const s=Math.max(0,Math.ceil((olDeadline-Date.now())/1000));
+  $("left").textContent=s;
+}
+function olBar(){
+  const bar=$("plBar");bar.innerHTML="";
+  const ids=[...olOrder,...[...olGone].filter(id=>!olOrder.includes(id))];
+  ids.forEach(id=>{const s=document.createElement("span");s.textContent=olNameOf(id);
+    const cls=[];if(id===myId)cls.push("me");if(olGone.has(id))cls.push("gone");
+    if(over&&id===olWinner)cls.push("win");else if(!over&&olOrder[olTurn]===id)cls.push("turn");
+    s.className=cls.join(" ");bar.appendChild(s)});
+}
+function olAfterEnd(){
+  clearInterval(olCountTimer);$("left").textContent="-";
+  $("aBtn").disabled=true;
+  $("next").hidden=!isHost;$("next").disabled=isHost&&olPlayers.length<2;
+  $("turnMsg").className="turnmsg";
+  $("turnMsg").textContent=isHost?(olPlayers.length<2?"相手がいないので、部屋にもどって待ってね":"「もう一回!」で同じメンバーで次の勝負"):"ホストが次の勝負を始めるのを待ってね";
+  if(isHost&&olPlayers.length<2)setTimeout(()=>{if(online&&isHost&&over)olHostLobby()},2500);
+}
+function olSubmit(name){
+  if(over)return;
+  const q=name.trim();if(!q)return;
+  const y=pool.find(x=>x.n===q)||pool.find(x=>x.k===kana(q));
+  if(!y){$("msg").textContent=Y.some(x=>x.n===q||x.k===kana(q))?`その妖怪は「${MODE_NAME[mode]}」に出てこないよ`:"その名前は図鑑にないみたい。候補から選んでね";return}
+  if(guesses.includes(y.n)){$("msg").textContent="その妖怪はもうだれかが調べたよ";return}
+  if(!olMyTurn()){$("msg").textContent="いまは自分の番じゃないよ";return}
+  if(olPending)return;
+  olPending=true;hideSug();$("guess").value=y.n;
+  if(isHost)olHostGuess(myId,y.n);else olClientGuess(y.n);
+}
+
+// ---- 部屋を出る・片付け ----
+function olCleanup(){
+  const p=peer;
+  online=false;isHost=false;peer=null;hostConn=null;olPending=false;olLastMsg=0;
+  clearTimeout(olTurnTimer);clearInterval(olCountTimer);clearInterval(olPingTimer);
+  olConns.clear();olSeen.clear();olPlayers=[];olOrder=[];olGone=new Set();
+  olBusy(false);
+  if(p)setTimeout(()=>{try{p.destroy()}catch(e){}},300);
+  $("hintBtn").style.visibility="";$("giveup").style.visibility="";
+  $("plBar").hidden=true;$("turnMsg").hidden=true;
+  $("next").hidden=false;$("next").disabled=false;$("next").querySelector("span").textContent="つぎの妖怪";
+  $("leftLab").textContent="のこり";$("left").textContent=MAX;
+  $("aBtn").disabled=false;
+}
+window.addEventListener("pagehide",()=>{if(peer)try{peer.destroy()}catch(e){}});
+
+// 招待リンク(?room=1234)から開いたとき
+(()=>{const r=new URLSearchParams(location.search).get("room");
+  if(r&&/^\d{4}$/.test(r)){$("olCode").value=r;olShow("entry");olErr("名前を入れて「入る」を押してね");if(!$("olName").value)$("olName").focus()}})();
 </script>
 
 <script>if("serviceWorker" in navigator){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}</script>
